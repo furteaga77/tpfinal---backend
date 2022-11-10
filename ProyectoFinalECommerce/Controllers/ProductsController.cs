@@ -1,105 +1,26 @@
 ﻿using Back_End.Models;
 using Microsoft.AspNetCore.Mvc;
 using Back_End.Repositories;
+using System.Reflection;
+using System.Runtime.ConstrainedExecution;
+using Microsoft.VisualBasic;
+using System.Threading;
+using System;
+using System.Reflection.Metadata;
 
 namespace Back_End.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class ProductsController : ControllerBase
-    {
+    {        
+        [HttpGet("GetProductsByDestacados")]  //TAREA 1
 
-        [HttpGet("GetErrorExample")]
-        public IActionResult GetErrorExample()
-        {
-            try
-            {
-                Product product = new Product(1, "fshbsfbnh", 100, false);
-                product.SetNewPrice(50);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            return Ok();
-        }
-        [HttpGet("GetProductsHome")]
-        public ActionResult GetProductsHome()
-        {
-            List<Product> products = new List<Product>();
-            try
-            {
-                ProductRepository repo = new ProductRepository();
-                products = repo.GetProducts();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            return Ok(products);
-        }
+        //Descripción:
+        //Hacer el endpoint, en el proyecto de back-end, de productos destacados,  agregando al modelo la propiedad bool de destacado.
+        //Subirlo al repositorio de Github, y entregarlo.
 
-        [HttpGet("GetProductsByCategory")]
-        public IActionResult GetProductsByCategory(int idCategory)
-        {
-            List<Product> products = new List<Product>();
-            List<Product> productsByCategory = new List<Product>();
-            try
-            {
-                ProductRepository repo = new ProductRepository();
-                products = repo.GetProducts();
-                foreach (var product in products)
-                {
-                    if (product.category.idCategory == idCategory)
-                    {
-                        productsByCategory.Add(product);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            return Ok(productsByCategory);
-        }
-        [HttpGet("GetProductsByDestacados")]
         public IActionResult GetProductsByDestacados()
-        {
-            List<Product> productsDestacados = new List<Product>();
-            List<Product> productsAux = new List<Product>();
-            try
-            {
-                ProductRepository repo = new ProductRepository();
-                productsAux = repo.GetProducts();
-                foreach (var product in productsAux) 
-                { 
-                    if (product.Destacado) productsDestacados.Add(product); 
-                }
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            return Ok(productsDestacados);
-        }
-
-        [HttpGet("GetProductsByDestacadosForEach")]
-        public IActionResult GetProductsByDestacadosForEach()
-        {
-            List<Product> productsDestacados = new List<Product>();
-            try
-            {
-                ProductRepository repo = new ProductRepository();
-                foreach (var product in repo.GetProducts()) { if (product.Destacado) productsDestacados.Add(product); }
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            return Ok(productsDestacados);
-        }
-        [HttpGet("GetProductsByDestacadosFindAll")]
-        public IActionResult GetProductsByDestacadosFindAll()
         {
             try
             {
@@ -112,7 +33,39 @@ namespace Back_End.Controllers
             }
         }
 
-        [HttpPost("AddProductToCart")] //Crear
+        [HttpGet("GetProductsByBanner")]    //TAREA 2
+
+        //Descripción:
+        //Yo como usuario final quiero que al ingresar al sitio se vea un carrousel tipo banner informativo que muestre "A definir con el cliente" para ver "A definir por el cliente".
+        //Hacer un metodo en el back-end que recupere una lista de productos que tengan la propiedad mostrarEnHome.
+        //Para realizar esta tarea deberan agregar en el modelo a la clase producto la propiedad booleana mostrarEnHome, y la deberan agregar en el constructor de la clase producto para poder pasarle el valor por parametro en el momento que hacen el new del objecto producto.
+        //Realizar el endpoint GetProductsByBanner, que devuelva la lista de productos a mostrar en el banner.
+
+        public IActionResult GetProductsByBanner()
+        {
+            try
+
+            {
+                ProductRepository repo = new ProductRepository();
+                return Ok(repo.GetProducts().FindAll(product => product.mostrarEnHome));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("AddProductToCart")] //TAREA 3
+
+        //Descripción:
+        //Del proyecto general, en el metodo AddProductToCart deberan verificar si el producto que recibe por parametro ya se encuentra en el carrito deberan sumarle la cantidad a la existente.
+        //Ejemplo
+        //Carrito
+        //Producto 1 cantidad 5
+        //Si llamo al addProductToCart con los valores producto 1, cantidad 10
+        //El resultado dera ser,
+        //Producto 1, cantidad 15.
+
         public IActionResult AddProductToCart(int idProducto, int cantidad) {
             try
             {
@@ -126,10 +79,16 @@ namespace Back_End.Controllers
         }
 
         [HttpGet("GetCart")]
+
+        //ESTE ENDPOINT NO SE CORRESPONDE A NINGUNA DE LKS TAREAS SUBIDAS AL CAMPUS PERO ES NECESARIO PARA COMPROBAR SI LA TAREA 3 SE HIZO BIEN
+
         public IActionResult GetCart() {
             try
             {
-                return Ok(CartRepository.GetCart().items);
+                if (CartRepository.GetCart() != null)
+                    return Ok(CartRepository.GetCart().items);
+                else
+                    throw new Exception("Carrito Vacío");
             }
             catch (Exception ex)
             {
@@ -137,7 +96,5 @@ namespace Back_End.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
-
     }
 }

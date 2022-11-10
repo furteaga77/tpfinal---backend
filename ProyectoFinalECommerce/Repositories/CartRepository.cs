@@ -18,7 +18,7 @@ namespace Back_End.Repositories
             CartItem productincart = _cart.items.Find(prodcart => prodcart.product.Id == idProduct);
             if (product != null)
             {
-                if (productincart.product == null) _cart.items.Add(new CartItem(product, cantidad));
+                if (productincart == null) _cart.items.Add(new CartItem(product, cantidad));
                 else productincart.cantidad += cantidad;
             }
             else
