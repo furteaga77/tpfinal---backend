@@ -13,7 +13,48 @@ namespace Back_End.Controllers
     [Route("api/[controller]")]
     [ApiController]
     public class ProductsController : ControllerBase
-    {        
+    {
+        [HttpGet("GetProductsHome")]
+        public ActionResult GetProductsHome()
+        {
+            List<Product> products = new List<Product>();
+            try
+            {
+                ProductRepository repo = new ProductRepository();
+                products = repo.GetProducts();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return Ok(products);
+        }
+
+        [HttpGet("GetProductsByCategory")]
+        public IActionResult GetProductsByCategory(int idCategory)
+        {
+            List<Product> products = new List<Product>();
+            List<Product> productsByCategory = new List<Product>();
+            try
+            {
+                ProductRepository repo = new ProductRepository();
+                products = repo.GetProducts();
+                foreach (var product in products)
+                {
+                    if (product.category.idCategory == idCategory)
+                    {
+                        productsByCategory.Add(product);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return Ok(productsByCategory);
+        }
+
+
         [HttpGet("GetProductsByDestacados")]  //TAREA 1
 
         //Descripción:
@@ -66,7 +107,8 @@ namespace Back_End.Controllers
         //El resultado dera ser,
         //Producto 1, cantidad 15.
 
-        public IActionResult AddProductToCart(int idProducto, int cantidad) {
+        public IActionResult AddProductToCart(int idProducto, int cantidad)
+        {
             try
             {
                 CartRepository.AddProductToCart(idProducto, cantidad);
@@ -82,7 +124,8 @@ namespace Back_End.Controllers
 
         //ESTE ENDPOINT NO SE CORRESPONDE A NINGUNA DE LKS TAREAS SUBIDAS AL CAMPUS PERO ES NECESARIO PARA COMPROBAR SI LA TAREA 3 SE HIZO BIEN
 
-        public IActionResult GetCart() {
+        public IActionResult GetCart()
+        {
             try
             {
                 if (CartRepository.GetCart() != null)
